@@ -1,0 +1,6 @@
+clientInfoSecret:
+  name: "synology-csi-client-info"
+
+storageClasses:
+  synology-iscsi-storage:
+    disabled: true
