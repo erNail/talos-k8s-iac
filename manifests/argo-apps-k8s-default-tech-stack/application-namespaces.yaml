@@ -1,0 +1,16 @@
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "namespaces"
+spec:
+  project: "k8s-default-tech-stack"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "main"
+      path: "manifests/namespaces/"
+  destination:
+    server: "https://kubernetes.default.svc"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

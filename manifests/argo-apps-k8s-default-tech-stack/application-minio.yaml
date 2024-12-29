@@ -1,0 +1,26 @@
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "minio"
+spec:
+  project: "k8s-default-tech-stack"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "main"
+      ref: "values"
+    - repoURL: "registry-1.docker.io/bitnamicharts"
+      chart: "minio"
+      targetRevision: "14.10.3"
+      helm:
+        releaseName: "minio"
+        valueFiles:
+          - "$values/charts/minio/values-custom.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "minio"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - "CreateNamespace=true"

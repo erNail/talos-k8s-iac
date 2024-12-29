@@ -1,0 +1,26 @@
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "ingress-nginx"
+spec:
+  project: "k8s-default-tech-stack"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "main"
+      ref: "values"
+    - repoURL: "https://kubernetes.github.io/ingress-nginx"
+      chart: "ingress-nginx"
+      targetRevision: "4.11.3"
+      helm:
+        releaseName: "ingress-nginx"
+        valueFiles:
+          - "$values/charts/ingress-nginx/values-custom.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "ingress"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - "CreateNamespace=true"

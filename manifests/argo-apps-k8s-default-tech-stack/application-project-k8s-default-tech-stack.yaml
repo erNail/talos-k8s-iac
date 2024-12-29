@@ -1,0 +1,14 @@
+apiVersion: "argoproj.io/v1alpha1"
+kind: "AppProject"
+metadata:
+  name: "k8s-default-tech-stack"
+spec:
+  description: "Project for managing the default Kubernetes cluster tech stack"
+  sourceRepos:
+  - '*'
+  destinations:
+  - namespace: '*'
+    server: '*'
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'

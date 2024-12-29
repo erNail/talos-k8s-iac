@@ -1,0 +1,19 @@
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "cert-issuer"
+spec:
+  project: "k8s-default-tech-stack"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "main"
+      path: "manifests/cert-issuer/"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "cert-manager"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - "CreateNamespace=true"

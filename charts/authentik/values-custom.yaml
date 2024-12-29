@@ -1,0 +1,46 @@
+global:
+  env:
+    - name: "AUTHENTIK_SECRET_KEY"
+      valueFrom:
+        secretKeyRef:
+          name: "authentik-credentials"
+          key: "authenticSecretKey"
+    - name: "AUTHENTIK_POSTGRESQL__PASSWORD"
+      valueFrom:
+        secretKeyRef:
+          name: "authentik-credentials"
+          key: "authentikPostgreSQLUserPassword"
+    - name: "POSTGRESQL_PASSWORD"
+      valueFrom:
+        secretKeyRef:
+          name: "authentik-credentials"
+          key: "authentikPostgreSQLUserPassword"
+
+server:
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+    tls:
+      - hosts:
+          - "authentik.nailforge.dev"
+        secretName: "authentik-tls"
+    hosts:
+      - "authentik.nailforge.dev"
+
+postgresql:
+  enabled: true
+  global:
+    defaultStorageClass: "openebs-hostpath"
+  auth:
+    existingSecret: "authentik-credentials"
+    secretKeys:
+      adminPasswordKey: "authentikPostgreSQLAdminPassword"
+      userPasswordKey: "authentikPostgreSQLUserPassword"
+
+redis:
+  enabled: true
+  global:
+    defaultStorageClass: "openebs-hostpath"

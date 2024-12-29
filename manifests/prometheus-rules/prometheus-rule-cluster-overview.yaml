@@ -1,0 +1,51 @@
+apiVersion: "monitoring.coreos.com/v1"
+kind: "PrometheusRule"
+metadata:
+  name: "cluster-overview"
+spec:
+  groups:
+    - name: "nailforge-cluster"
+      rules:
+        - alert: "VolumeAlmostOutOfSpace"
+          expr: |
+            (
+              (
+                sum by (persistentvolumeclaim, namespace) (kubelet_volume_stats_used_bytes)
+                / sum by (persistentvolumeclaim, namespace) (kubelet_volume_stats_capacity_bytes)
+              )
+              * 100
+            )
+            > 90
+          for: "5m"
+          labels:
+            severity: "emergency"
+          annotations:
+            summary: |-
+              Volume `{{ $labels.persistentvolumeclaim }}` in namespace `{{ $labels.namespace }}` is running out of space
+            description: |-
+              The volume `{{ $labels.persistentvolumeclaim }}` in namespace `{{ $labels.namespace }}` is almost out of space.
+              Current disk usage is at {{ $value | printf "%.2f" }}%.
+              Check and increase the capacity if necessary.
+
+        - alert: "DiskAlmostOutOfSpace"
+          expr: |
+            (
+              (
+                (
+                  node_filesystem_size_bytes{fstype!~"tmpfs|overlay"}
+                  - node_filesystem_free_bytes{fstype!~"tmpfs|overlay"}
+                )
+                / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"}
+              )
+              * 100
+            )
+            > 90
+          for: 5m
+          labels:
+            severity: "emergency"
+          annotations:
+            summary: "The disk mounted at `{{ $labels.mountpoint }}` on instance `{{ $labels.instance }}`  is running out of space"
+            description: |
+              The disk mounted at `{{ $labels.mountpoint }}` on instance `{{ $labels.instance }}` is running out of space.
+              Current usage: {{ $value | printf "%.2f" }}%.
+              Consider cleaning up or increasing disk size.

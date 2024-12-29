@@ -1,0 +1,26 @@
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "harbor"
+spec:
+  project: "k8s-default-tech-stack"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "main"
+      ref: "values"
+    - repoURL: "https://helm.goharbor.io"
+      chart: "harbor"
+      targetRevision: "1.16.0"
+      helm:
+        releaseName: "harbor"
+        valueFiles:
+          - "$values/charts/harbor/values-custom.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "harbor"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - "CreateNamespace=true"
