@@ -1,0 +1,28 @@
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "synology-csi"
+  namespace: "argocd"
+spec:
+  project: "default"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "main"
+      path: "k8s/storage/synology-csi"
+      ref: "values"
+    - repoURL: "https://zebernst.github.io/synology-csi-talos"
+      chart: "synology-csi"
+      targetRevision: "0.9.5-pre.1"
+      helm:
+        releaseName: "synology-csi"
+        valueFiles:
+          - "$values/k8s/storage/synology-csi/values-synology-csi.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "synology-csi"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - "CreateNamespace=true"
