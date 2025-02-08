@@ -1,0 +1,6 @@
+nfs:
+  server: "192.168.178.85"
+  path: "/volume1/k8s-nfs"
+
+storageClass:
+  create: false
