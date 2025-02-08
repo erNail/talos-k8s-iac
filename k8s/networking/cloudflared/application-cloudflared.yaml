@@ -1,0 +1,28 @@
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "cloudflared"
+  namespace: "argocd"
+spec:
+  project: "default"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "main"
+      path: "k8s/networking/cloudflared"
+      ref: "values"
+    - repoURL: "https://charts.kubito.dev"
+      chart: "cloudflared"
+      targetRevision: "1.6.0"
+      helm:
+        releaseName: "cloudflared"
+        valueFiles:
+          - "$values/k8s/networking/cloudflared/values-cloudflared.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "cloudflared"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - "CreateNamespace=true"

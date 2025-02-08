@@ -1,0 +1,3 @@
+managed:
+  enabled: true
+  existingSecret: "cloudflared-secret"
