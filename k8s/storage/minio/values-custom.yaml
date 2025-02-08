@@ -1,0 +1,26 @@
+persistence:
+  storageClass: "synology-iscsi-retain"
+auth:
+  existingSecret: "minio-root-user"
+provisioning:
+  enabled: true
+  usersExistingSecrets:
+    - "minio-thanos-user"
+    - "minio-loki-user"
+  buckets:
+    - name: "thanos"
+    - name: "loki-chunks"
+    - name: "loki-ruler"
+    - name: "loki-admin"
+ingress:
+  enabled: true
+  ingressClassName: "nginx"
+  hostname: "minio.nailforge.dev"
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+  tls: true
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
