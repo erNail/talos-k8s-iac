@@ -1,0 +1,27 @@
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "grafaml-dashboards"
+  namespace: "argocd"
+spec:
+  project: "default"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "main"
+      ref: "values"
+    - repoURL: "registry-1.docker.io/ernail"
+      chart: "grafaml"
+      targetRevision: "2.1.0"
+      helm:
+        releaseName: "cluster-overview"
+        valueFiles:
+          - "$values/k8s/monitoring/grafaml/values-cluster-overview.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "monitoring"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - "CreateNamespace=true"

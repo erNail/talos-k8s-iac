@@ -1,0 +1,92 @@
+title: "Cluster Overview"
+panels:
+  columns: 2
+  panelHeight: 8
+  list:
+    - title: "Memory Usage"
+      type: "stat"
+      targets:
+        - expr: "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100"
+          legendformat: "{{instance}}"
+      fieldConfig:
+        defaults:
+          unit: "percent"
+          decimals: 2
+      options:
+        graphMode: "none"
+
+    - title: "CPU Usage"
+      type: "stat"
+      targets:
+        - expr: "sum by (instance, job) (avg by (mode, instance) (rate(node_cpu_seconds_total{mode!='idle'}[2m]))) * 100"
+          legendformat: "{{instance}}"
+      fieldConfig:
+        defaults:
+          unit: "percent"
+          decimals: 2
+      options:
+        graphMode: "none"
+
+    - title: "Volume Usage"
+      type: "stat"
+      targets:
+        - expr: "(sum by (persistentvolumeclaim, namespace) (kubelet_volume_stats_used_bytes) / sum by (persistentvolumeclaim, namespace) (kubelet_volume_stats_capacity_bytes)) * 100"
+          legendformat: "{{persistentvolumeclaim}}"
+      fieldConfig:
+        defaults:
+          unit: "percent"
+          decimals: 2
+      options:
+        graphMode: "none"
+
+    - title: "Disk Usage"
+      type: "stat"
+      targets:
+        - expr: "100 - (node_filesystem_avail_bytes{mountpoint=~'/var|/volume.*'} / node_filesystem_size_bytes{mountpoint=~'/var|/volume.*'} * 100)"
+          legendformat: "Instance: {{instance}}, Mountpoint: {{mountpoint}}"
+      fieldConfig:
+        defaults:
+          unit: "percent"
+          decimals: 2
+      options:
+        graphMode: "none"
+
+    - title: "Memory Usage over Time"
+      type: "timeseries"
+      targets:
+        - expr: "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100"
+          legendformat: "{{instance}}"
+      fieldConfig:
+        defaults:
+          unit: "percent"
+          decimals: 2
+
+    - title: "CPU Usage over Time"
+      type: "timeseries"
+      targets:
+        - expr: "sum by (instance, job) (avg by (mode, instance) (rate(node_cpu_seconds_total{mode!='idle'}[2m])))"
+          legendformat: "{{instance}}"
+      fieldConfig:
+        defaults:
+          unit: "percent"
+          decimals: 2
+
+    - title: "Volume Usage over Time"
+      type: "timeseries"
+      targets:
+        - expr: "(sum by (persistentvolumeclaim, namespace) (kubelet_volume_stats_used_bytes) / sum by (persistentvolumeclaim, namespace) (kubelet_volume_stats_capacity_bytes)) * 100"
+          legendformat: "{{persistentvolumeclaim}}"
+      fieldConfig:
+        defaults:
+          unit: "percent"
+          decimals: 2
+
+    - title: "Disk Usage over Time"
+      type: "timeseries"
+      targets:
+        - expr: "100 - (node_filesystem_avail_bytes{mountpoint=~'/var|/volume.*'} / node_filesystem_size_bytes{mountpoint=~'/var|/volume.*'} * 100)"
+          legendformat: "Instance: {{instance}}, Mountpoint: {{mountpoint}}"
+      fieldConfig:
+        defaults:
+          unit: "percent"
+          decimals: 2
