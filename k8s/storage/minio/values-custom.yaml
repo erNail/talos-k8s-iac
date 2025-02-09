@@ -1,5 +1,6 @@
 persistence:
   storageClass: "synology-iscsi-retain"
+  size: 32Gi
 auth:
   existingSecret: "minio-root-user"
 provisioning:
