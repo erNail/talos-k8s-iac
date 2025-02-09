@@ -1,0 +1,12 @@
+repositories:
+  - name: "ernail"
+    url: "registry-1.docker.io/ernail"
+    oci: true
+
+releases:
+  - name: "cluster-overview-dashboard"
+    namespace: "monitoring"
+    chart: "ernail/grafaml"
+    version: "2.1.0"
+    values:
+      - "./values-cluster-overview.yaml"
