@@ -1,0 +1,29 @@
+global:
+  defaultStorageClass: "synology-iscsi-delete"
+existingObjstoreSecret: "thanos-objectstore-config"
+query:
+  replicaCount: 2
+  dnsDiscovery:
+    sidecarsService: "kube-prometheus-stack-thanos-discovery"
+    sidecarsNamespace: "monitoring"
+bucketweb:
+  replicaCount: 2
+  enabled: true
+compactor:
+  enabled: true
+storegateway:
+  replicaCount: 2
+  enabled: true
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+queryFrontend:
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"
+    hostname: thanos.nailforge.dev
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+    tls: true
