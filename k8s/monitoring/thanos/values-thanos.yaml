@@ -2,17 +2,17 @@ global:
   defaultStorageClass: "synology-iscsi-delete"
 existingObjstoreSecret: "thanos-objectstore-config"
 query:
-  replicaCount: 2
+  replicaCount: 1
   dnsDiscovery:
     sidecarsService: "kube-prometheus-stack-thanos-discovery"
     sidecarsNamespace: "monitoring"
 bucketweb:
-  replicaCount: 2
+  replicaCount: 1
   enabled: true
 compactor:
   enabled: true
 storegateway:
-  replicaCount: 2
+  replicaCount: 1
   enabled: true
 metrics:
   enabled: true
