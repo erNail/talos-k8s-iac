@@ -42,7 +42,7 @@ prometheus:
   thanosServiceMonitor:
     enabled: true
   prometheusSpec:
-    replicas: 2
+    replicas: 1
     storageSpec:
       volumeClaimTemplate:
         spec:
@@ -71,7 +71,7 @@ prometheus:
 
 alertmanager:
   alertmanagerSpec:
-    replicas: 2
+    replicas: 1
   ingress:
     enabled: true
     ingressClassName: "nginx"

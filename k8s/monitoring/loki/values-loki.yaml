@@ -3,7 +3,7 @@ deploymentMode: "SingleBinary"
 loki:
   auth_enabled: false
   commonConfig:
-    replication_factor: 3
+    replication_factor: 1
   schemaConfig:
     configs:
       - from: "2024-04-01"
@@ -32,7 +32,7 @@ loki:
       s3ForcePathStyle: true
 
 singleBinary:
-  replicas: 3
+  replicas: 1
   persistence:
     storageClass: "synology-iscsi-delete"
   extraArgs:
