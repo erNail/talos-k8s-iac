@@ -1,0 +1,16 @@
+dashboard:
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+    hosts:
+      - host: "goldilocks.nailforge.dev"
+        paths:
+          - path: "/"
+            type: "Prefix"
+    tls:
+      - secretName: "goldilocks-tls"
+        hosts:
+          - "goldilocks.nailforge.dev"
