@@ -1,0 +1,7 @@
+recommender:
+  podMonitor:
+    enabled: true
+
+updater:
+  podMonitor:
+    enabled: true
