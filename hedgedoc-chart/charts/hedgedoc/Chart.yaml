@@ -1,0 +1,15 @@
+---
+apiVersion: "v2"
+name: "hedgedoc"
+description: |
+  A lightweight yet comprehensive helm chart for [HedgeDoc](https://hedgedoc.org/),
+
+  Linted with [`kube-score`](https://github.com/zegl/kube-score),
+  [`kube-linter`](https://github.com/stackrox/kube-linter)
+  and [`yamllint`](https://github.com/stackrox/kube-linter).
+
+  Tested with [`helm-unittest`](https://github.com/helm-unittest/helm-unittest).
+type: "application"
+version: "0.0.0"
+appVersion: "0.0.0"
+...
