@@ -1,0 +1,28 @@
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "minio-operator"
+  namespace: "argocd"
+spec:
+  project: "default"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "main"
+      path: "k8s/minio-operator"
+      ref: "values"
+    - repoURL: "https://operator.min.io/"
+      chart: "operator"
+      targetRevision: "7.1.1"
+      helm:
+        releaseName: "minio-operator"
+        valueFiles:
+          - "$values/k8s/minio-operator/values-minio-operator.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "minio-operator"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - "CreateNamespace=true"
