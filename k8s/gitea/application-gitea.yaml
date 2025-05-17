@@ -1,25 +1,25 @@
 apiVersion: "argoproj.io/v1alpha1"
 kind: "Application"
 metadata:
-  name: "sealed-secrets"
+  name: "gitea"
   namespace: "argocd"
 spec:
   project: "default"
   sources:
     - repoURL: "https://github.com/erNail/talos-k8s-iac"
       targetRevision: "main"
-      path: "k8s/secrets/sealed-secrets"
+      path: "k8s/gitea"
       ref: "values"
-    - repoURL: "https://bitnami-labs.github.io/sealed-secrets/"
-      chart: "sealed-secrets"
-      targetRevision: "2.17.1"
+    - repoURL: "https://dl.gitea.io/charts"
+      chart: "gitea"
+      targetRevision: "12.0.0"
       helm:
-        releaseName: "sealed-secrets"
+        releaseName: "gitea"
         valueFiles:
-          - "$values/k8s/secrets/sealed-secrets/values-sealed-secrets.yaml"
+          - "$values/k8s/gitea/values-gitea.yaml"
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: "kube-system"
+    namespace: "gitea"
   syncPolicy:
     automated:
       prune: true

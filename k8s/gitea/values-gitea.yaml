@@ -1,0 +1,39 @@
+global:
+  storageClass: "synology-iscsi-retain"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  pathType: Prefix
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+  hosts:
+    - host: "gitea.nailforge.dev"
+      paths:
+        - path: /
+  tls:
+   - secretName: "gitea-tls"
+     hosts:
+       - "gitea.nailforge.dev"
+
+valkey-cluster:
+  enabled: false
+valkey:
+  enabled: true
+postgresql:
+  enabled: true
+postgresql-ha:
+  enabled: false
+
+persistence:
+  enabled: true
+
+gitea:
+  config:
+    database:
+      DB_TYPE: "postgres"
+    indexer:
+      ISSUE_INDEXER_TYPE: "bleve"
+      REPO_INDEXER_ENABLED: true
+
