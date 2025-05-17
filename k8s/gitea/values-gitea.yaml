@@ -8,6 +8,7 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: "nginx"
     cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
   hosts:
     - host: "gitea.nailforge.dev"
       paths:
