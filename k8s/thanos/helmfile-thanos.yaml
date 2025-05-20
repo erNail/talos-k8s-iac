@@ -1,0 +1,13 @@
+repositories:
+  - name: "bitnami"
+    url: "registry-1.docker.io/bitnamicharts"
+    oci: true
+
+releases:
+  - name: "thanos"
+    namespace: "thanos"
+    chart: "bitnami/thanos"
+    version: "16.0.7"
+    missingFileHandler: "Error"
+    values:
+      - "./values-thanos.yaml"

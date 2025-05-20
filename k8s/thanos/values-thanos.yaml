@@ -1,0 +1,65 @@
+global:
+  defaultStorageClass: "nfs-subdir-delete"
+
+existingObjstoreSecret: "thanos-objectstore-config"
+
+query:
+  replicaCount: 1
+  dnsDiscovery:
+    sidecarsService: "kube-prometheus-stack-thanos-discovery"
+    sidecarsNamespace: "kube-prometheus-stack"
+
+bucketweb:
+  replicaCount: 1
+  enabled: true
+
+compactor:
+  enabled: true
+  retentionResolutionRaw: "7d"
+  retentionResolution5m: "30d"
+  retentionResolution1h: "90d"
+
+storegateway:
+  replicaCount: 1
+  enabled: true
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+queryFrontend:
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"
+    hostname: "thanos.nailforge.dev"
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+    tls: true
+
+minio:
+  enabled: true
+  persistence:
+    storageClass: "nfs-subdir-delete"
+    size: "256Gi"
+  auth:
+    existingSecret: "thanos-minio-root-user"
+  provisioning:
+    enabled: true
+    buckets:
+      - name: "thanos"
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"
+    hostname: "minio.thanos.nailforge.dev"
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+    tls: true
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  minio:
+    enabled: true
+    

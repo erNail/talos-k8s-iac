@@ -1,0 +1,112 @@
+grafana:
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+    tls:
+      - hosts:
+        - "grafana.nailforge.dev"
+        secretName: "grafana-tls"
+    hosts:
+      - "grafana.nailforge.dev"
+    path: "/"
+  sidecar:
+    datasources:
+      isDefaultDatasource: true
+  additionalDataSources:
+    - name: "thanos"
+      type: "prometheus"
+      url: "http://thanos-query.thanos.svc.cluster.local:9090"
+    - name: "loki"
+      type: "loki"
+      url: "http://loki:3100"
+
+prometheus:
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+    tls:
+      - hosts:
+        - "prometheus.nailforge.dev"
+        secretName: "prometheus-tls"
+    hosts:
+      - "prometheus.nailforge.dev"
+    path: "/"
+  thanosService:
+    enabled: true
+  thanosServiceMonitor:
+    enabled: true
+  prometheusSpec:
+    replicas: 1
+    ruleSelectorNilUsesHelmValues: false
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    probeSelectorNilUsesHelmValues: false
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: "nfs-subdir-delete"
+          accessModes:
+            - "ReadWriteOnce"
+          resources:
+            requests:
+              storage: "50Gi"
+    additionalScrapeConfigs:
+      - job_name: node-exporter-synology-ds218
+        metrics_path: /metrics
+        scrape_interval: 30s
+        static_configs:
+        - targets:
+          - 192.168.178.85:9100
+
+    thanos:
+      image: quay.io/thanos/thanos:v0.37.2
+      objectStorageConfig:
+        existingSecret:
+          name: "thanos-objectstore-config"
+          key: "objstore.yml"
+    ruleSelector:
+      ruleSelectorNilUsesHelmValues: false
+
+alertmanager:
+  alertmanagerSpec:
+    replicas: 1
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+    tls:
+      - hosts:
+        - "alertmanager.nailforge.dev"
+        secretName: "alertmanager-tls"
+    hosts:
+      - "alertmanager.nailforge.dev"
+    path: "/"
+  config:
+    route:
+      receiver: "null"
+      routes:
+        - match:
+            severity: 'emergency'
+          receiver: 'null'
+    receivers:
+      - name: 'null'
+      # - name: "telegram-emergency"
+      #   telegram_configs:
+      #   - bot_token: ""
+      #     chat_id: 403174313
+      #     message: |
+      #       🚨 *EMERGENCY ALERT* 🚨
+      #       {{ range .Alerts }}
+      #       *Alert:* {{ .Annotations.summary }}
+      #       *Description:* {{ .Annotations.description }}
+      #       *Severity:* {{ .Labels.severity }}
+      #       *StartsAt:* {{ .StartsAt }}
+      #       {{ end }}
