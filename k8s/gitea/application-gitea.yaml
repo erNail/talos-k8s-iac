@@ -1,0 +1,28 @@
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "gitea"
+  namespace: "argocd"
+spec:
+  project: "default"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "feat/add-default-tech-stack"
+      path: "k8s/gitea"
+      ref: "values"
+    - repoURL: "https://dl.gitea.io/charts"
+      chart: "gitea"
+      targetRevision: "12.0.0"
+      helm:
+        releaseName: "gitea"
+        valueFiles:
+          - "$values/k8s/gitea/values-gitea.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "gitea"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - "CreateNamespace=true"

@@ -1,0 +1,92 @@
+portal:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: "10m"
+      memory: "128Mi"
+    limits:
+      memory: "128Mi"
+
+core:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: "10m"
+      memory: "128Mi"
+    limits:
+      memory: "128Mi"
+
+jobservice:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: "10m"
+      memory: "128Mi"
+    limits:
+      memory: "128Mi"
+
+registry:
+  replicaCount: 2
+  server:
+    resources:
+      requests:
+        cpu: "10m"
+        memory: "128Mi"
+      limits:
+        memory: "128Mi"
+  controller:
+    resources:
+      requests:
+        cpu: "10m"
+        memory: "128Mi"
+      limits:
+        memory: "128Mi"
+
+trivy:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: "10m"
+      memory: "128Mi"
+    limits:
+      memory: "128Mi"
+
+ingress:
+  core:
+    ingressClassName: "nginx"
+    hostname: "harbor.nailforge.dev"
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+
+persistence:
+  enabled: true
+  registry:
+    size: "16Gi"
+  jobservice:
+    size: "4Gi"
+  trivy:
+    size: "4Gi"
+
+postgresql:
+  enabled: false
+
+externalDatabase:
+  host: "harbor-postresql-rw"
+  port: "5432"
+  user: "harbor"
+  existingSecret: "harbor-db-credentials"
+  existingSecretPasswordKey: "password"
+
+redis:
+  enabled: false
+
+externalRedis:
+  host: "harbor-valkey-cluster"
+  port: 6379
+  existingSecret: "harbor-valkey-cluster-credentials"
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true

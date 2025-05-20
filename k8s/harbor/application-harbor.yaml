@@ -1,0 +1,35 @@
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "harbor"
+  namespace: "argocd"
+spec:
+  project: "default"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "feat/add-default-tech-stack"
+      path: "k8s/harbor"
+      ref: "values"
+    - repoURL: "registry-1.docker.io/bitnamicharts"
+      chart: "harbor"
+      targetRevision: "26.7.10"
+      helm:
+        releaseName: "harbor"
+        valueFiles:
+          - "$values/k8s/harbor/values-harbor.yaml"
+    - repoURL: "registry-1.docker.io/bitnamicharts"
+      chart: "valkey-cluster"
+      targetRevision: "3.0.17"
+      helm:
+        releaseName: "harbor-valkey-cluster"
+        valueFiles:
+          - "$values/k8s/harbor/values-harbor-valkey-cluster.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "harbor"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false
+    syncOptions:
+      - "CreateNamespace=true"

@@ -1,0 +1,58 @@
+global:
+  storageClass: "longhorn"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  pathType: Prefix
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+    nginx.ingress.kubernetes.io/proxy-body-size: "500m"
+  hosts:
+    - host: "gitea.nailforge.dev"
+      paths:
+        - path: /
+  tls:
+   - secretName: "gitea-tls"
+     hosts:
+       - "gitea.nailforge.dev"
+
+valkey-cluster:
+  enabled: false
+
+valkey:
+  enabled: true
+
+postgresql-ha:
+  enabled: false
+
+persistence:
+  enabled: true
+  size: 8Gi
+
+gitea:
+  config:
+    database:
+      DB_TYPE: "postgres"
+      NAME: "gitea"
+      USER: "gitea"
+      HOST: "gitea-postgresql-rw:5432"
+    indexer:
+      ISSUE_INDEXER_TYPE: "bleve"
+      REPO_INDEXER_ENABLED: true
+  additionalConfigFromEnvs:
+    - name: "GITEA__DATABASE__PASSWD"
+      valueFrom:
+        secretKeyRef:
+          name: "gitea-db-credentials"
+          key: "password"
+  metrics:
+    serviceMonitor:
+      enabled: true
+  admin:
+    existingSecret: "gitea-admin"
+    email: "nagel.eric.95@googlemail.com"
+
+
+

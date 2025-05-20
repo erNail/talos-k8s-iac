@@ -1,0 +1,30 @@
+---
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "copyparty"
+  namespace: "argocd"
+spec:
+  project: "default"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "feat/add-default-tech-stack"
+      path: "k8s/copyparty"
+      ref: "values"
+    - repoURL: "ghcr.io/ernail/charts"
+      chart: "copyparty"
+      targetRevision: "1.0.0"
+      helm:
+        releaseName: "copyparty"
+        valueFiles:
+          - "$values/k8s/copyparty/values-copyparty.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "copyparty"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - "CreateNamespace=true"
+...

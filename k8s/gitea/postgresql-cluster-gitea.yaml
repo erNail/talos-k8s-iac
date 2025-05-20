@@ -1,0 +1,16 @@
+apiVersion: "postgresql.cnpg.io/v1"
+kind: "Cluster"
+metadata:
+  name: "gitea-postgresql"
+  namespace: "gitea"
+spec:
+  instances: 2
+  storage:
+    size: "16Gi"
+    storageClass: "longhorn"
+  bootstrap:
+    initdb:
+      database: "gitea"
+      owner: "gitea"
+      secret:
+        name: "gitea-db-credentials"

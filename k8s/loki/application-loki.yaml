@@ -1,0 +1,35 @@
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "loki"
+  namespace: "argocd"
+spec:
+  project: "default"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "feat/add-default-tech-stack"
+      path: "k8s/loki"
+      ref: "values"
+    - repoURL: "https://grafana.github.io/helm-charts"
+      chart: "loki"
+      targetRevision: "6.24.0"
+      helm:
+        releaseName: "loki"
+        valueFiles:
+          - "$values/k8s/loki/values-loki.yaml"
+    - repoURL: "registry-1.docker.io/bitnamicharts"
+      chart: "minio"
+      targetRevision: "16.0.10"
+      helm:
+        releaseName: "loki-minio"
+        valueFiles:
+          - "$values/k8s/loki/values-loki-minio.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "loki"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - "CreateNamespace=true"

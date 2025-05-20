@@ -1,0 +1,30 @@
+---
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "longhorn"
+  namespace: "argocd"
+spec:
+  project: "default"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "feat/add-default-tech-stack"
+      path: "k8s/longhorn"
+      ref: "values"
+    - repoURL: "https://charts.longhorn.io"
+      chart: "longhorn"
+      targetRevision: "1.9.0"
+      helm:
+        releaseName: "longhorn"
+        valueFiles:
+          - "$values/k8s/longhorn/values-longhorn.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "longhorn"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - "CreateNamespace=true"
+...

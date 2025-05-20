@@ -1,0 +1,20 @@
+mayastor:
+  csi:
+    node:
+      initContainers:
+        enabled: false
+  crds:
+    enabled: false
+
+engines:
+  local:
+    lvm:
+      enabled: false
+    zfs:
+      enabled: false
+
+loki:
+  enabled: false
+
+alloy:
+  enabled: false

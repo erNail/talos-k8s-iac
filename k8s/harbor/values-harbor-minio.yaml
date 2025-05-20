@@ -1,0 +1,32 @@
+mode: "standalone"
+resources:
+  # requests:
+  #   cpu: "500m"
+  #   memory: "512Mi"
+  # limits:
+  #   memory: "512Mi"
+
+persistence:
+  size: "16Gi"
+
+auth:
+  existingSecret: "harbor-minio-root-user"
+
+provisioning:
+  enabled: true
+  buckets:
+    - name: "harbor"
+
+ingress:
+  enabled: true
+  ingressClassName: "nginx"
+  hostname: "minio.harbor.nailforge.dev"
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+  tls: true
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true

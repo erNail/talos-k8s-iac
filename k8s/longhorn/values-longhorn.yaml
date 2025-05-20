@@ -1,0 +1,19 @@
+ingress:
+  enabled: true
+  ingressClassName: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+  host: "longhorn.nailforge.dev"
+  tls: true
+  
+preUpgradeChecker:
+  jobEnabled: false
+
+defaultSettings:
+  storageReservedPercentageForDefaultDisk: 20
+  replicaAutoBalance: "least-effort"
+
+metrics:
+  serviceMonitor:
+    enabled: true

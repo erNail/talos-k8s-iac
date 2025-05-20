@@ -1,0 +1,24 @@
+cluster:
+  nodes: 3
+
+valkey:
+  resources:
+    requests:
+      cpu: "20m"
+      memory: "128Mi"
+    limits:
+      memory: "128Mi"
+
+metrics:
+  enabled: true
+
+serviceMonitor:
+  enabled: true
+
+existingSecret: "harbor-valkey-cluster-credentials"
+existingSecretPasswordKey: "redis-password"
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true

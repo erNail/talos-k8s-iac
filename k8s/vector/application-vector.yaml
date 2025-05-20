@@ -1,0 +1,28 @@
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "vector"
+  namespace: "argocd"
+spec:
+  project: "default"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "feat/add-default-tech-stack"
+      path: "k8s/vector"
+      ref: "values"
+    - repoURL: "https://helm.vector.dev"
+      chart: "vector"
+      targetRevision: "0.43.0"
+      helm:
+        releaseName: "vector"
+        valueFiles:
+          - "$values/k8s/vector/values-vector.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "vector"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - "CreateNamespace=true"

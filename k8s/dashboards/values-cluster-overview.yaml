@@ -1,0 +1,64 @@
+title: "Cluster Overview"
+panels:
+  columns: 2
+  panelHeight: 8
+  list:
+    - title: "Memory Usage"
+      type: "timeseries"
+      targets:
+        - expr: "1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)"
+          legendformat: "{{instance}}"
+      fieldConfig:
+        defaults:
+          unit: "percentunit"
+          decimals: 2
+
+    - title: "CPU Usage"
+      type: "timeseries"
+      targets:
+        - expr: "1 - (avg by(instance) (rate(node_cpu_seconds_total{mode='idle'}[5m])))"
+          legendformat: "{{instance}}"
+      fieldConfig:
+        defaults:
+          unit: "percentunit"
+          decimals: 2
+
+    - title: "Disk Usage"
+      type: "timeseries"
+      targets:
+        - expr: "1 - (node_filesystem_avail_bytes{mountpoint=~'/var|/volume.*'} / node_filesystem_size_bytes{mountpoint=~'/var|/volume.*'})"
+          legendformat: "Instance: {{instance}}, Mountpoint: {{mountpoint}}"
+      fieldConfig:
+        defaults:
+          unit: "percentunit"
+          decimals: 2
+
+    - title: "Volume Usage"
+      type: "timeseries"
+      targets:
+        - expr: "(sum by (persistentvolumeclaim, namespace) (kubelet_volume_stats_used_bytes) / sum by (persistentvolumeclaim, namespace) (kubelet_volume_stats_capacity_bytes))"
+          legendformat: "{{persistentvolumeclaim}}"
+      fieldConfig:
+        defaults:
+          unit: "percentunit"
+          decimals: 2
+
+    - title: "Longhorn Volume Usage"
+      type: "timeseries"
+      targets: 
+        - expr: "(longhorn_volume_actual_size_bytes / longhorn_volume_capacity_bytes)"
+          legendformat: "{{pvc}}"
+      fieldConfig:
+        defaults:
+          unit: "percentunit"
+          decimals: 2
+
+    - title: "Temperature"
+      type: "timeseries"
+      targets: 
+        - expr: "node_hwmon_temp_celsius"
+          legendformat: "{{instance}}"
+      fieldConfig:
+        defaults:
+          unit: "celsius"
+

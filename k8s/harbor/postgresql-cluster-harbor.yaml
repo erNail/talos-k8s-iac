@@ -1,0 +1,18 @@
+---
+apiVersion: "postgresql.cnpg.io/v1"
+kind: "Cluster"
+metadata:
+  name: "harbor-postgresql"
+  namespace: "harbor"
+spec:
+  instances: 2
+  resources: {}
+  storage:
+    size: "16Gi"
+  bootstrap:
+    initdb:
+      database: "registry"
+      owner: "harbor"
+      secret:
+        name: "harbor-db-credentials"
+...

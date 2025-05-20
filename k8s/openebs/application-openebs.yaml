@@ -1,0 +1,30 @@
+---
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "openebs"
+  namespace: "argocd"
+spec:
+  project: "default"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "feat/add-default-tech-stack"
+      path: "k8s/openebs"
+      ref: "values"
+    - repoURL: "https://openebs.github.io/openebs"
+      chart: "openebs"
+      targetRevision: "4.3.2"
+      helm:
+        releaseName: "openebs"
+        valueFiles:
+          - "$values/k8s/openebs/values-openebs.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "openebs"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - "CreateNamespace=true"
+...

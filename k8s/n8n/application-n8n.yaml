@@ -1,0 +1,30 @@
+---
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "n8n"
+  namespace: "argocd"
+spec:
+  project: "default"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "feat/add-default-tech-stack"
+      path: "k8s/n8n"
+      ref: "values"
+    - repoURL: "8gears.container-registry.com/library"
+      chart: "n8n"
+      targetRevision: "1.0.10"
+      helm:
+        releaseName: "n8n"
+        valueFiles:
+          - "$values/k8s/n8n/values-n8n.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "n8n"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - "CreateNamespace=true"
+...
