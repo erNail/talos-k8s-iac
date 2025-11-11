@@ -1,0 +1,23 @@
+---
+repositories:
+  - name: "argo"
+    url: "https://argoproj.github.io/argo-helm"
+  - name: "bitnami"
+    url: "registry-1.docker.io/bitnamicharts"
+    oci: true
+
+releases:
+  - name: "argo-cd"
+    namespace: "argocd"
+    chart: "argo/argo-cd"
+    version: "8.1.3"
+    missingFileHandler: "Error"
+    values:
+      - "./values-argo-cd.yaml"
+  - name: "argo-cd-valkey"
+    namespace: "argocd"
+    chart: "bitnami/valkey"
+    version: "3.0.22"
+    missingFileHandler: "Error"
+    values:
+      - "./values-argo-cd-valkey.yaml"
