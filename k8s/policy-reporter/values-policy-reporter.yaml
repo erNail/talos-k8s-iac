@@ -1,0 +1,55 @@
+---
+replicaCount: 2
+
+resources:
+  limits:
+    memory: "64Mi"
+  requests:
+    cpu: "10m"
+    memory: "64Mi"
+
+ui:
+  enabled: true
+  replicaCount: 2
+  resources:
+    limits:
+      memory: "64Mi"
+    requests:
+      cpu: "10m"
+      memory: "64Mi"
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+    hosts:
+      - host: "policy-reporter-ui.nailforge.dev"
+        paths:
+          - path: "/"
+            pathType: "Prefix"
+            servicePortName: "http"
+    tls:
+      - hosts:
+          - "policy-reporter-ui.nailforge.dev"
+        secretName: "poliy-reporter-ui-tls"
+
+plugin:
+  kyverno:
+    enabled: true
+    replicaCount: 2
+    resources:
+      limits:
+        memory: "64Mi"
+      requests:
+        cpu: "10m"
+        memory: "64Mi"
+
+metrics:
+  enabled: true
+
+monitoring:
+  enabled: true
+
+grafana:
+  enabled: true

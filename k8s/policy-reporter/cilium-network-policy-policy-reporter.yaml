@@ -1,0 +1,100 @@
+---
+apiVersion: "cilium.io/v2"
+kind: "CiliumNetworkPolicy"
+metadata:
+  name: "policy-reporter-ui"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: "policy-reporter"
+      app.kubernetes.io/name: "policy-reporter-ui"
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "ingress"
+            app.kubernetes.io/name: "ingress-nginx"
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: "TCP"
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-system"
+            k8s:k8s-app: "kube-dns"
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: "ANY"
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "policy-reporter"
+            app.kubernetes.io/name: "policy-reporter-kyverno-plugin"
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: "TCP"
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "policy-reporter"
+            app.kubernetes.io/name: "policy-reporter"
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: "TCP"
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-system"
+            k8s:k8s-app: "kube-dns"
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: "ANY"
+---
+apiVersion: "cilium.io/v2"
+kind: "CiliumNetworkPolicy"
+metadata:
+  name: "policy-reporter-kyverno-plugin"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: "policy-reporter"
+      app.kubernetes.io/name: "policy-reporter-kyverno-plugin"
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "policy-reporter"
+            app.kubernetes.io/name: "policy-reporter-ui"
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+  egress: []
+---
+apiVersion: "cilium.io/v2"
+kind: "CiliumNetworkPolicy"
+metadata:
+  name: "policy-reporter"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: "policy-reporter"
+      app.kubernetes.io/name: "policy-reporter"
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "policy-reporter"
+            app.kubernetes.io/name: "policy-reporter-ui"
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-prometheus-stack"
+            app.kubernetes.io/name: "prometheus"
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+  egress: []

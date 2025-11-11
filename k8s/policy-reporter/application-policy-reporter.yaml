@@ -1,0 +1,29 @@
+---
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "policy-reporter"
+  namespace: "argocd"
+spec:
+  project: "default"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "feat/cleanup"
+      path: "k8s/policy-reporter"
+      ref: "values"
+    - repoURL: "https://kyverno.github.io/policy-reporter"
+      chart: "policy-reporter"
+      targetRevision: "3.5.0"
+      helm:
+        releaseName: "policy-reporter"
+        valueFiles:
+          - "$values/k8s/policy-reporter/values-policy-reporter.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "policy-reporter"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - "CreateNamespace=true"
