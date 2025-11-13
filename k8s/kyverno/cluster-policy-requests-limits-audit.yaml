@@ -1,0 +1,134 @@
+---
+apiVersion: "kyverno.io/v1"
+kind: "ClusterPolicy"
+metadata:
+  name: "requests-limits-audit"
+spec:
+  validationFailureAction: "Audit"
+  background: true
+  rules:
+    - name: "require-cpu-request"
+      match:
+        any:
+          - resources:
+              kinds:
+                - "Pod"
+      validate:
+        message: "CPU request must be set for all containers"
+        cel:
+          expressions:
+            - expression: >-
+                object.spec.containers.all(container,
+                  has(container.resources.requests.cpu)
+                )
+            - expression: >-
+                !has(object.spec.initContainers) ||
+                object.spec.initContainers.all(container,
+                  has(container.resources.requests.cpu)
+                )
+            - expression: >-
+                !has(object.spec.ephemeralContainers) ||
+                object.spec.ephemeralContainers.all(container,
+                  has(container.resources.requests.cpu)
+                )
+
+    - name: "require-memory-request"
+      match:
+        any:
+          - resources:
+              kinds:
+                - "Pod"
+      validate:
+        message: "Memory request must be set for all containers"
+        cel:
+          expressions:
+            - expression: >-
+                object.spec.containers.all(container,
+                  has(container.resources.requests.memory)
+                )
+            - expression: >-
+                !has(object.spec.initContainers) ||
+                object.spec.initContainers.all(container,
+                  has(container.resources.requests.memory)
+                )
+            - expression: >-
+                !has(object.spec.ephemeralContainers) ||
+                object.spec.ephemeralContainers.all(container,
+                  has(container.resources.requests.memory)
+                )
+
+    # TODO: Uncomment after https://github.com/argoproj/argo-cd/issues/25240 is resolved
+    # - name: "disallow-cpu-limit"
+    #   match:
+    #     any:
+    #     - resources:
+    #         kinds:
+    #         - Pod
+    #   validate:
+    #     message: "CPU limit must not be set"
+    #     cel:
+    #       expressions:
+    #         - expression: >-
+    #             object.spec.containers.all(container,
+    #               !has(container.resources.limits.cpu)
+    #             )
+    #         - expression: >-
+    #             !has(object.spec.initContainers) ||
+    #             object.spec.initContainers.all(container,
+    #               !has(container.resources.limits.cpu)
+    #             )
+    #         - expression: >-
+    #             !has(object.spec.ephemeralContainers) ||
+    #             object.spec.ephemeralContainers.all(container,
+    #               !has(container.resources.limits.cpu)
+    #             )
+
+    - name: "require-memory-limit"
+      match:
+        any:
+          - resources:
+              kinds:
+                - "Pod"
+      validate:
+        message: "Memory limit must be set for all containers"
+        cel:
+          expressions:
+            - expression: >-
+                object.spec.containers.all(container,
+                  has(container.resources.limits.memory)
+                )
+            - expression: >-
+                !has(object.spec.initContainers) ||
+                object.spec.initContainers.all(container,
+                  has(container.resources.limits.memory)
+                )
+            - expression: >-
+                !has(object.spec.ephemeralContainers) ||
+                object.spec.ephemeralContainers.all(container,
+                  has(container.resources.limits.memory)
+                )
+
+    - name: "memory-request-limit-equal"
+      match:
+        any:
+          - resources:
+              kinds:
+                - "Pod"
+      validate:
+        message: "Memory request and limit must be equal"
+        cel:
+          expressions:
+            - expression: >-
+                object.spec.containers.all(container,
+                  container.resources.requests.memory == container.resources.limits.memory
+                )
+            - expression: >-
+                !has(object.spec.initContainers) ||
+                object.spec.initContainers.all(container,
+                  container.resources.requests.memory == container.resources.limits.memory
+                )
+            - expression: >-
+                !has(object.spec.ephemeralContainers) ||
+                object.spec.ephemeralContainers.all(container,
+                  container.resources.requests.memory == container.resources.limits.memory
+                )

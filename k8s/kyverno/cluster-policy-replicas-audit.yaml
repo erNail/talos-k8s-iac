@@ -1,0 +1,25 @@
+---
+apiVersion: "kyverno.io/v1"
+kind: "ClusterPolicy"
+metadata:
+  name: "replicas-audit"
+  annotations:
+    policies.kyverno.io/scored: "false"
+spec:
+  validationFailureAction: "Audit"
+  background: true
+  rules:
+    - name: "require-multiple-replicas"
+      match:
+        any:
+          - resources:
+              kinds:
+                - "Deployment"
+                - "StatefulSet"
+                - "ReplicaSet"
+      validate:
+        message: "Replica count must be greater than 1."
+        cel:
+          expressions:
+            - expression: >-
+                has(object.spec.replicas) && object.spec.replicas > 1

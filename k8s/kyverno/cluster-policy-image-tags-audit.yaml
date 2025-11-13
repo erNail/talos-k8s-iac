@@ -1,0 +1,58 @@
+---
+apiVersion: "kyverno.io/v1"
+kind: "ClusterPolicy"
+metadata:
+  name: "image-tags-audit"
+spec:
+  validationFailureAction: "Audit"
+  background: true
+  rules:
+    - name: "require-image-tag"
+      match:
+        any:
+          - resources:
+              kinds:
+                - "Pod"
+      validate:
+        message: "An image tag is required."
+        cel:
+          expressions:
+            - expression: >-
+                object.spec.containers.all(container,
+                  container.image.contains(':')
+                )
+            - expression: >-
+                !has(object.spec.initContainers) ||
+                object.spec.initContainers.all(container,
+                  container.image.contains(':')
+                )
+            - expression: >-
+                !has(object.spec.ephemeralContainers) ||
+                object.spec.ephemeralContainers.all(container,
+                  container.image.contains(':')
+                )
+
+    - name: "validate-image-tag"
+      match:
+        any:
+          - resources:
+              kinds:
+                - "Pod"
+      validate:
+        message: "Using a mutable image tag e.g. 'latest' is not allowed."
+        cel:
+          expressions:
+            - expression: >-
+                object.spec.containers.all(container,
+                  !container.image.endsWith(':latest')
+                )
+            - expression: >-
+                !has(object.spec.initContainers) ||
+                object.spec.initContainers.all(container,
+                  !container.image.endsWith(':latest')
+                )
+            - expression: >-
+                !has(object.spec.ephemeralContainers) ||
+                object.spec.ephemeralContainers.all(container,
+                  !container.image.endsWith(':latest')
+                )
