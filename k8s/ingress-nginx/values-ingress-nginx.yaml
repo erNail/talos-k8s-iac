@@ -1,0 +1,16 @@
+---
+controller:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: "10m"
+      memory: "256Mi"
+    limits:
+      memory: "256Mi"
+
+  extraArgs:
+    enable-ssl-passthrough: ""
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
