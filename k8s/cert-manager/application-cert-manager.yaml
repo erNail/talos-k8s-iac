@@ -1,0 +1,29 @@
+---
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "cert-manager"
+  namespace: "argocd"
+spec:
+  project: "default"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "feat/cleanup"
+      path: "k8s/cert-manager"
+      ref: "values"
+    - repoURL: "https://charts.jetstack.io"
+      chart: "cert-manager"
+      targetRevision: "1.18.1"
+      helm:
+        releaseName: "cert-manager"
+        valueFiles:
+          - "$values/k8s/cert-manager/values-cert-manager.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "cert-manager"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - "CreateNamespace=true"
