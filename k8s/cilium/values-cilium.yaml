@@ -1,0 +1,65 @@
+---
+operator:
+  replicas: 2
+
+ipam:
+  mode: "kubernetes"
+
+securityContext:
+  capabilities:
+    ciliumAgent:
+      - "CHOWN"
+      - "KILL"
+      - "NET_ADMIN"
+      - "NET_RAW"
+      - "IPC_LOCK"
+      - "SYS_ADMIN"
+      - "SYS_RESOURCE"
+      - "DAC_OVERRIDE"
+      - "FOWNER"
+      - "SETGID"
+      - "SETUID"
+    cleanCiliumState:
+      - "NET_ADMIN"
+      - "SYS_ADMIN"
+      - "SYS_RESOURCE"
+
+cgroup:
+  hostRoot: "/sys/fs/cgroup"
+  automount:
+    enabled: false
+
+kubeProxyReplacement: true
+k8sServiceHost: "localhost"
+k8sServicePort: 7445
+
+gatewayAPI:
+  enabled: true
+  enableAlpn: true
+  enableAppProtocol: true
+
+hubble:
+  enabled: true
+  relay:
+    enabled: true
+    replicas: 2
+  ui:
+    enabled: true
+    replicas: 2
+    ingress:
+      enabled: true
+      className: "nginx"
+      annotations:
+        kubernetes.io/ingress.class: "nginx"
+        cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+        nginx.ingress.kubernetes.io/affinity: "cookie"
+        nginx.ingress.kubernetes.io/affinity-mode: "persistent"
+      hosts:
+        - "hubble-ui.nailforge.dev"
+      tls:
+        - hosts:
+            - "hubble-ui.nailforge.dev"
+          secretName: "hubble-ui-tls"
+
+prometheus:
+  enabled: true
