@@ -1,0 +1,41 @@
+image:
+  tag: "latest"
+
+resources:
+  requests:
+    memory: "3096Mi"
+    cpu: "200m"
+  limits:
+    memory: "3096Mi"
+
+minecraftServer:
+  version: "1.21.10"
+  eula: "TRUE"
+  type: "FABRIC"
+  difficulty: "normal"
+  motd: "Welcome to the Nailforge Minecraft Server inside K8s!"
+  memory: "1512M"
+  serviceType: "LoadBalancer"
+  spawnProtection: 0
+  whitelist: "edg3lessCube,ShouCs,buvere,Dath0,LordOfCheesecake,vvombat,DanceMoreOften,Bustel97"
+  ops: "edg3lessCube"
+  modrinth:
+    projects:
+      - "fabric-api"
+      - "ferrite-core"
+      - "lithium"
+      - "krypton"
+      - "distanthorizons"
+      - "appleskin"
+    allowedVersionType: "beta"
+
+persistence:
+  storageClass: "longhorn"
+  labels:
+    recurring-job.longhorn.io/source: "enabled"
+    recurring-job.longhorn.io/minecraft-snapshot: "enabled"
+  dataDir:
+    enabled: true
+    Size: "20Gi"
+
+livenessProbe: {}

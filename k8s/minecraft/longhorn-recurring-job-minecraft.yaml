@@ -1,0 +1,10 @@
+apiVersion: "longhorn.io/v1beta2"
+kind: "RecurringJob"
+metadata:
+  name: "minecraft-snapshot"
+  namespace: "longhorn"
+spec:
+  cron: "0 5 * * *"
+  task: "snapshot"
+  retain: 2
+  concurrency: 1
