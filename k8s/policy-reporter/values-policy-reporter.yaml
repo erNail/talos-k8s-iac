@@ -1,0 +1,92 @@
+---
+replicaCount: 2
+
+resources:
+  limits:
+    memory: "64Mi"
+  requests:
+    cpu: "10m"
+    memory: "64Mi"
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: "app.kubernetes.io/name"
+                operator: "In"
+                values:
+                  - "policy-reporter"
+          topologyKey: "kubernetes.io/hostname"
+
+ui:
+  enabled: true
+  replicaCount: 2
+  resources:
+    limits:
+      memory: "64Mi"
+    requests:
+      cpu: "10m"
+      memory: "64Mi"
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+    hosts:
+      - host: "policy-reporter-ui.nailforge.dev"
+        paths:
+          - path: "/"
+            pathType: "Prefix"
+            servicePortName: "http"
+    tls:
+      - hosts:
+          - "policy-reporter-ui.nailforge.dev"
+        secretName: "poliy-reporter-ui-tls"
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: "app.kubernetes.io/name"
+                  operator: "In"
+                  values:
+                    - "policy-reporter-ui"
+            topologyKey: "kubernetes.io/hostname"
+
+plugin:
+  kyverno:
+    enabled: true
+    replicaCount: 2
+    resources:
+      limits:
+        memory: "64Mi"
+      requests:
+        cpu: "10m"
+        memory: "64Mi"
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: "app.kubernetes.io/name"
+                    operator: "In"
+                    values:
+                      - "policy-reporter-kyverno"
+              topologyKey: "kubernetes.io/hostname"
+
+metrics:
+  enabled: true
+
+monitoring:
+  enabled: true
+
+grafana:
+  enabled: true

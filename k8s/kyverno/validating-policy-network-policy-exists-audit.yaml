@@ -1,0 +1,42 @@
+---
+apiVersion: "policies.kyverno.io/v1alpha1"
+kind: "ValidatingPolicy"
+metadata:
+  name: "network-policy-exists-audit"
+spec:
+  validationActions:
+    - "Audit"
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - "apps"
+        apiVersions:
+          - "v1"
+        operations:
+          - "CREATE"
+          - "UPDATE"
+        resources:
+          - "deployments"
+          - "statefulsets"
+  variables:
+    - name: "ciliumNetworkPolicyList"
+      expression: >-
+        resource.List('cilium.io/v2', 'ciliumnetworkpolicies', object.metadata.namespace).items.orValue([])
+    - name: "podLabels"
+      expression: >-
+        object.spec.template.metadata.?labels.orValue({})
+  validations:
+    - messageExpression: >-
+        "No CiliumNetworkPolicy found targeting pods of " +
+        object.kind + "/" + object.metadata.name +
+        " in namespace " + object.metadata.namespace + "."
+      expression: >-
+        variables.ciliumNetworkPolicyList.exists(cnp,
+          cnp.spec.?endpointSelector.?matchLabels.orValue({}).exists(key, !key.startsWith("k8s:")) &&
+          cnp.spec.?endpointSelector.?matchLabels.orValue({}).all(key,
+            key.startsWith("k8s:") || (
+              key in variables.podLabels &&
+              cnp.spec.endpointSelector.matchLabels[key] == variables.podLabels[key]
+            )
+          )
+        )

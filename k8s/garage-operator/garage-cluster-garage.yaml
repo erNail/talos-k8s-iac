@@ -1,0 +1,26 @@
+apiVersion: "garage.rajsingh.info/v1alpha1"
+kind: "GarageCluster"
+metadata:
+  name: "garage"
+spec:
+  replicas: 3
+  zone: "default"
+  replication:
+    factor: 3
+  storage:
+    data:
+      size: "100Gi"
+  network:
+    rpcBindPort: 3901
+    service:
+      type: ClusterIP
+  admin:
+    enabled: true
+    bindPort: 3903
+    adminTokenSecretRef:
+      name: "garage-cluster-garage-admin-credentials"
+      key: "admin-token"
+  webApi:
+    rootDomain: ".garage.nailforge.dev"
+  monitoring:
+    enabled: true

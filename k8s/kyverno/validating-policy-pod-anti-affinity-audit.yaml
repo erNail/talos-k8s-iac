@@ -1,0 +1,32 @@
+---
+apiVersion: "policies.kyverno.io/v1alpha1"
+kind: "ValidatingPolicy"
+metadata:
+  name: "pod-anti-affinity-audit"
+spec:
+  validationActions:
+    - "Audit"
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - "apps"
+        apiVersions:
+          - "v1"
+        operations:
+          - "CREATE"
+          - "UPDATE"
+        resources:
+          - "deployments"
+          - "statefulsets"
+  validations:
+    - messageExpression: >-
+        "No podAntiAffinity with topologyKey kubernetes.io/hostname found in " +
+        object.kind + "/" + object.metadata.name +
+        " in namespace " + object.metadata.namespace + "."
+      expression: >-
+        object.spec.template.spec.?affinity.?podAntiAffinity.?requiredDuringSchedulingIgnoredDuringExecution.orValue([]).exists(term,
+          term.topologyKey == "kubernetes.io/hostname"
+        ) ||
+        object.spec.template.spec.?affinity.?podAntiAffinity.?preferredDuringSchedulingIgnoredDuringExecution.orValue([]).exists(term,
+          term.podAffinityTerm.topologyKey == "kubernetes.io/hostname"
+        )

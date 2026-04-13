@@ -1,0 +1,36 @@
+---
+apiVersion: "policies.kyverno.io/v1"
+kind: "ValidatingPolicy"
+metadata:
+  name: "image-tags-audit"
+spec:
+  validationActions:
+    - "Audit"
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - "v1"
+        operations:
+          - "CREATE"
+          - "UPDATE"
+        resources:
+          - "pods"
+  variables:
+    - name: "images"
+      expression: >-
+        object.spec.containers.map(container, parseImageReference(container.image))
+        + object.spec.?initContainers.orValue([]).map(container, parseImageReference(container.image))
+        + object.spec.?ephemeralContainers.orValue([]).map(container, parseImageReference(container.image))
+  validations:
+    - messageExpression: >-
+        "An image tag or digest is required. Offending images: " +
+        variables.images.filter(image, image.identifier() == "").map(image, image.registry() + "/" + image.repository() + ":" + image.tag()).join(", ")
+      expression: >-
+        variables.images.all(image, image.identifier() != "")
+    - messageExpression: >-
+        "Using a mutable image tag like 'latest' is not allowed. Offending images: " +
+        variables.images.filter(image, image.tag() == "latest").map(image, image.registry() + "/" + image.repository() + ":" + image.tag()).join(", ")
+      expression: >-
+        variables.images.all(image, image.tag() != "latest")

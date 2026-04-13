@@ -1,0 +1,207 @@
+---
+resources:
+  requests:
+    cpu: "100m"
+    memory: "256Mi"
+  limits:
+    memory: "256Mi"
+
+initResources:
+  requests:
+    cpu: "10m"
+    memory: "32Mi"
+  limits:
+    memory: "32Mi"
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: "app.kubernetes.io/name"
+                operator: "In"
+                values:
+                  - "cilium-agent"
+          topologyKey: "kubernetes.io/hostname"
+
+envoy:
+  resources:
+    requests:
+      cpu: "10m"
+      memory: "32Mi"
+    limits:
+      memory: "32Mi"
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: "app.kubernetes.io/name"
+                  operator: "In"
+                  values:
+                    - "cilium-envoy"
+            topologyKey: "kubernetes.io/hostname"
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  
+
+cni:
+  resources:
+    requests:
+      cpu: "10m"
+      memory: "32Mi"
+    limits:
+      memory: "32Mi"
+
+operator:
+  replicas: 2
+  resources:
+    requests:
+      cpu: "10m"
+      memory: "128Mi"
+    limits:
+      memory: "128Mi"
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+    maxUnavailable: null
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: "app.kubernetes.io/name"
+                  operator: "In"
+                  values:
+                    - "cilium-operator"
+            topologyKey: "kubernetes.io/hostname"
+
+ipam:
+  mode: "kubernetes"
+
+securityContext:
+  capabilities:
+    ciliumAgent:
+      - "CHOWN"
+      - "KILL"
+      - "NET_ADMIN"
+      - "NET_RAW"
+      - "IPC_LOCK"
+      - "SYS_ADMIN"
+      - "SYS_RESOURCE"
+      - "DAC_OVERRIDE"
+      - "FOWNER"
+      - "SETGID"
+      - "SETUID"
+    cleanCiliumState:
+      - "NET_ADMIN"
+      - "SYS_ADMIN"
+      - "SYS_RESOURCE"
+
+cgroup:
+  hostRoot: "/sys/fs/cgroup"
+  automount:
+    enabled: false
+
+kubeProxyReplacement: true
+k8sServiceHost: "localhost"
+k8sServicePort: 7445
+
+gatewayAPI:
+  enabled: true
+  enableAlpn: true
+  enableAppProtocol: true
+
+hubble:
+  enabled: true
+  relay:
+    enabled: true
+    replicas: 2
+    resources:
+      requests:
+        cpu: "20m"
+        memory: "32Mi"
+      limits:
+        memory: "32Mi"
+    prometheus:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1
+      maxUnavailable: null
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+                - key: "app.kubernetes.io/name"
+                  operator: "In"
+                  values:
+                    - "hubble-relay"
+            topologyKey: "kubernetes.io/hostname"
+  ui:
+    enabled: true
+    replicas: 2
+    ingress:
+      enabled: true
+      className: "nginx"
+      annotations:
+        kubernetes.io/ingress.class: "nginx"
+        cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+        nginx.ingress.kubernetes.io/affinity: "cookie"
+        nginx.ingress.kubernetes.io/affinity-mode: "persistent"
+      hosts:
+        - "hubble-ui.nailforge.dev"
+      tls:
+        - hosts:
+            - "hubble-ui.nailforge.dev"
+          secretName: "hubble-ui-tls"
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1
+      maxUnavailable: null
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+                - key: "app.kubernetes.io/name"
+                  operator: "In"
+                  values:
+                    - "hubble-ui"
+            topologyKey: "kubernetes.io/hostname"
+    backend:
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "128Mi"
+        limits:
+          memory: "128Mi"
+    frontend:
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "128Mi"
+        limits:
+          memory: "128Mi"
+
+prometheus:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+
+# policyAuditMode: true

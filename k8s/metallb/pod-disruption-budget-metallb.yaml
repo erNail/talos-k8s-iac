@@ -1,0 +1,24 @@
+---
+apiVersion: "policy/v1"
+kind: "PodDisruptionBudget"
+metadata:
+  name: "metallb-controller"
+  namespace: "metallb-system"
+spec:
+  minAvailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "metallb"
+      app.kubernetes.io/component: "controller"
+---
+apiVersion: "policy/v1"
+kind: "PodDisruptionBudget"
+metadata:
+  name: "metallb-speaker"
+  namespace: "metallb-system"
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "metallb"
+      app.kubernetes.io/component: "speaker"

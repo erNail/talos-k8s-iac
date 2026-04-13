@@ -1,0 +1,37 @@
+replicaCount: 2
+
+resources:
+  requests:
+    cpu: "10m"
+    memory: "64Mi"
+  limits:
+    memory: "64Mi"
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+  maxUnavailable: null
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: "app.kubernetes.io/name"
+                operator: "In"
+                values:
+                  - "nfs-subdir-external-provisioner"
+          topologyKey: "kubernetes.io/hostname"
+
+nfs:
+  server: "192.168.178.85"
+  path: "/volume1/k8s-nfs"
+
+storageClass:
+  create: false
+
+labels:
+  app.kubernetes.io/name: "nfs-subdir-external-provisioner"
+

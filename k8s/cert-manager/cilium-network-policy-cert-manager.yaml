@@ -1,0 +1,121 @@
+---
+apiVersion: "cilium.io/v2"
+kind: "CiliumNetworkPolicy"
+metadata:
+  name: "cert-manager"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: "cert-manager"
+      app.kubernetes.io/name: "cert-manager"
+  ingress:
+    - fromEntities:
+        - "kube-apiserver"
+        - "host"
+      toPorts:
+        - ports:
+            - port: "9403"
+              protocol: "TCP"
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-prometheus-stack"
+            app.kubernetes.io/name: "prometheus"
+      toPorts:
+        - ports:
+            - port: "9402"
+              protocol: "TCP"
+  egress:
+    - toEntities:
+        - "kube-apiserver"
+        - "host"
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: "TCP"
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-system"
+            k8s:k8s-app: "kube-dns"
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: "ANY"
+          rules:
+            dns:
+              - matchPattern: "*"
+    - toFQDNs:
+        - matchName: "acme-v02.api.letsencrypt.org"
+        - matchName: "api.cloudflare.com"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: "TCP"
+    - toFQDNs:
+        - matchPattern: "*.ns.cloudflare.com"
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: "ANY"
+---
+apiVersion: "cilium.io/v2"
+kind: "CiliumNetworkPolicy"
+metadata:
+  name: "webhook"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: "cert-manager"
+      app.kubernetes.io/name: "webhook"
+  ingress:
+    - fromEntities:
+        - "kube-apiserver"
+        - "host"
+      toPorts:
+        - ports:
+            - port: "6080"
+              protocol: "TCP"
+            - port: "10250"
+              protocol: "TCP"
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-prometheus-stack"
+            app.kubernetes.io/name: "prometheus"
+      toPorts:
+        - ports:
+            - port: "9402"
+              protocol: "TCP"
+  egress:
+    - toEntities:
+        - "kube-apiserver"
+        - "host"
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: "TCP"
+---
+apiVersion: "cilium.io/v2"
+kind: "CiliumNetworkPolicy"
+metadata:
+  name: "cainjector"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: "cert-manager"
+      app.kubernetes.io/name: "cainjector"
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-prometheus-stack"
+            app.kubernetes.io/name: "prometheus"
+      toPorts:
+        - ports:
+            - port: "9402"
+              protocol: "TCP"
+  egress:
+    - toEntities:
+        - "kube-apiserver"
+        - "host"
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: "TCP"

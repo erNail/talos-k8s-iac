@@ -1,0 +1,40 @@
+role: "Agent"
+
+resources:
+  limits:
+    cpu: "100m"
+    memory: "512Mi"
+  requests:
+    cpu: "100m"
+    memory: "512Mi"
+
+service:
+  enabled: false
+
+podMonitor:
+  enabled: "true"
+
+customConfig:
+  data_dir: "/vector-data-dir"
+  sources:
+    kubernetes:
+      type: "kubernetes_logs"
+  sinks:
+    loki:
+      type: "loki"
+      inputs:
+        - "kubernetes"
+      endpoint: "http://loki-gateway.loki.svc.cluster.local:80"
+      encoding:
+        codec: "json"
+      labels:
+        namespace: |-
+          {{ print "{{ kubernetes.pod_namespace }}" }}
+        pod: |-
+          {{ print "{{ kubernetes.pod_name }}" }}
+        container: |-
+          {{ print "{{ kubernetes.container_name }}" }}
+        node: |-
+          {{ print "{{ kubernetes.pod_node_name }}" }}
+        stream: |-
+            {{ print "{{ kubernetes.stream }}" }}

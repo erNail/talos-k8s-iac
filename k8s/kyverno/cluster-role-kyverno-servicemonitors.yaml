@@ -1,0 +1,33 @@
+---
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "ClusterRole"
+metadata:
+  name: "kyverno:servicemonitors:read"
+rules:
+  - apiGroups:
+      - "monitoring.coreos.com"
+    resources:
+      - "servicemonitors"
+    verbs:
+      - "get"
+      - "list"
+      - "watch"
+---
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "ClusterRoleBinding"
+metadata:
+  name: "kyverno:servicemonitors:read"
+roleRef:
+  apiGroup: "rbac.authorization.k8s.io"
+  kind: "ClusterRole"
+  name: "kyverno:servicemonitors:read"
+subjects:
+  - kind: "ServiceAccount"
+    name: "kyverno-admission-controller"
+    namespace: "kyverno"
+  - kind: "ServiceAccount"
+    name: "kyverno-background-controller"
+    namespace: "kyverno"
+  - kind: "ServiceAccount"
+    name: "kyverno-reports-controller"
+    namespace: "kyverno"

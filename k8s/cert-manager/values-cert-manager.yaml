@@ -1,0 +1,89 @@
+---
+replicaCount: 2
+
+resources:
+  requests:
+    cpu: "10m"
+    memory: "128Mi"
+  limits:
+    memory: "128Mi"
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: "app.kubernetes.io/name"
+                operator: "In"
+                values:
+                  - "cert-manager"
+          topologyKey: "kubernetes.io/hostname"
+
+crds:
+  enabled: true
+
+webhook:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: "10m"
+      memory: "128Mi"
+    limits:
+      memory: "128Mi"
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: "app.kubernetes.io/name"
+                  operator: "In"
+                  values:
+                    - "cert-manager-webhook"
+            topologyKey: "kubernetes.io/hostname"
+
+cainjector:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: "10m"
+      memory: "128Mi"
+    limits:
+      memory: "128Mi"
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: "app.kubernetes.io/name"
+                  operator: "In"
+                  values:
+                    - "cert-manager-cainjector"
+            topologyKey: "kubernetes.io/hostname"
+
+prometheus:
+  servicemonitor:
+    enabled: true
+
+startupapicheck:
+  resources:
+    requests:
+      cpu: "10m"
+      memory: "32Mi"
+    limits:
+      memory: "32Mi"

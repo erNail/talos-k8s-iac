@@ -1,0 +1,31 @@
+---
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "metallb"
+  namespace: "argocd"
+spec:
+  project: "default"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "feat/restart"
+      path: "k8s/metallb"
+      ref: "values"
+      directory:
+        exclude: "application-*.yaml"
+    - repoURL: "https://metallb.github.io/metallb"
+      chart: "metallb"
+      targetRevision: "0.15.3"
+      helm:
+        releaseName: "metallb"
+        valueFiles:
+          - "$values/k8s/metallb/values-metallb.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "metallb-system"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - "CreateNamespace=true"

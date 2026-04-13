@@ -1,0 +1,50 @@
+---
+apiVersion: "cilium.io/v2"
+kind: "CiliumNetworkPolicy"
+metadata:
+  name: "controller"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: "metallb-system"
+      app.kubernetes.io/name: "metallb"
+      app.kubernetes.io/component: "controller"
+  ingress:
+    - fromEntities:
+        - "kube-apiserver"
+        - "host"
+        - "remote-node"
+      toPorts:
+        - ports:
+            - port: "7472"
+              protocol: "TCP"
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-prometheus-stack"
+            app.kubernetes.io/name: "prometheus"
+      toPorts:
+        - ports:
+            - port: "7472"
+              protocol: "TCP"
+  egress:
+    - toEntities:
+        - "kube-apiserver"
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: "TCP"
+---
+apiVersion: "cilium.io/v2"
+kind: "CiliumNetworkPolicy"
+metadata:
+  name: "speaker"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: "metallb-system"
+      app.kubernetes.io/name: "metallb"
+      app.kubernetes.io/component: "speaker"
+  ingress:
+    - {}
+  egress:
+    - {}

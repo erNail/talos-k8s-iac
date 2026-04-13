@@ -1,0 +1,120 @@
+---
+apiVersion: "cilium.io/v2"
+kind: "CiliumNetworkPolicy"
+metadata:
+  name: "kyverno-admission-controller"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: "kyverno"
+      app.kubernetes.io/name: "kyverno-admission-controller"
+  ingress:
+    - fromEntities:
+        - "kube-apiserver"
+        - "remote-node"
+        - "host"
+      toPorts:
+        - ports:
+            - port: "9443"
+              protocol: "TCP"
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-prometheus-stack"
+            app.kubernetes.io/name: "prometheus"
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: "TCP"
+  egress:
+    - toEntities:
+        - "kube-apiserver"
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: "TCP"
+---
+apiVersion: "cilium.io/v2"
+kind: "CiliumNetworkPolicy"
+metadata:
+  name: "kyverno-cleanup-controller"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: "kyverno"
+      app.kubernetes.io/name: "kyverno-cleanup-controller"
+  ingress:
+    - fromEntities:
+        - "kube-apiserver"
+        - "remote-node"
+        - "host"
+      toPorts:
+        - ports:
+            - port: "9443"
+              protocol: "TCP"
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-prometheus-stack"
+            app.kubernetes.io/name: "prometheus"
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: "TCP"
+  egress:
+    - toEntities:
+        - "kube-apiserver"
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: "TCP"
+---
+apiVersion: "cilium.io/v2"
+kind: "CiliumNetworkPolicy"
+metadata:
+  name: "kyverno-background-controller"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: "kyverno"
+      app.kubernetes.io/name: "kyverno-background-controller"
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-prometheus-stack"
+            app.kubernetes.io/name: "prometheus"
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: "TCP"
+  egress:
+    - toEntities:
+        - "kube-apiserver"
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: "TCP"
+---
+apiVersion: "cilium.io/v2"
+kind: "CiliumNetworkPolicy"
+metadata:
+  name: "kyverno-reports-controller"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: "kyverno"
+      app.kubernetes.io/name: "kyverno-reports-controller"
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-prometheus-stack"
+            app.kubernetes.io/name: "prometheus"
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: "TCP"
+  egress:
+    - toEntities:
+        - "kube-apiserver"
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: "TCP"

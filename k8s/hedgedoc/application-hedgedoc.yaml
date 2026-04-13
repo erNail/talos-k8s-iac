@@ -1,0 +1,31 @@
+---
+apiVersion: "argoproj.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "hedgedoc"
+  namespace: "argocd"
+spec:
+  project: "default"
+  sources:
+    - repoURL: "https://github.com/erNail/talos-k8s-iac"
+      targetRevision: "feat/restart"
+      path: "k8s/hedgedoc"
+      ref: "values"
+      directory:
+        exclude: "application-*.yaml"
+    - repoURL: "ghcr.io/ernail/charts"
+      chart: "hedgedoc"
+      targetRevision: "4.0.0"
+      helm:
+        releaseName: "hedgedoc"
+        valueFiles:
+          - "$values/k8s/hedgedoc/values-hedgedoc.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: "hedgedoc"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - "CreateNamespace=true"

@@ -1,0 +1,33 @@
+---
+apiVersion: "policies.kyverno.io/v1alpha1"
+kind: "ValidatingPolicy"
+metadata:
+  name: "pdb-exists-audit"
+spec:
+  validationActions:
+    - "Audit"
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - "apps"
+        apiVersions:
+          - "v1"
+        operations:
+          - "CREATE"
+          - "UPDATE"
+        resources:
+          - "deployments"
+          - "statefulsets"
+  variables:
+    - name: "pdbList"
+      expression: >-
+        resource.List('policy/v1', 'poddisruptionbudgets', object.metadata.namespace).items.orValue([])
+  validations:
+    - messageExpression: >-
+        "No PodDisruptionBudget found matching the selector of " +
+        object.kind + "/" + object.metadata.name +
+        " in namespace " + object.metadata.namespace + "."
+      expression: >-
+        variables.pdbList.exists(pdb,
+          pdb.spec.selector.matchLabels.all(key, key in object.spec.selector.matchLabels && object.spec.selector.matchLabels[key] == pdb.spec.selector.matchLabels[key])
+        )

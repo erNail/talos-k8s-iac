@@ -1,0 +1,58 @@
+---
+replica:
+  enabled: true
+  replicas: 2
+  persistence:
+    size: "4Gi"
+    storageclass: "longhorn"
+
+resources:
+  requests:
+    cpu: "20m"
+    memory: "128Mi"
+  limits:
+    memory: "128Mi"
+
+initResources:
+  requests:
+    cpu: "10m"
+    memory: "64Mi"
+  limits:
+    memory: "64Mi"
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: "app.kubernetes.io/name"
+                operator: "In"
+                values:
+                  - "valkey"
+          topologyKey: "kubernetes.io/hostname"
+
+auth:
+  enabled: true
+  usersExistingSecret: "argo-cd-valkey-credentials"
+  aclUsers:
+    default:
+      permissions: "~* &* +@all"
+      passwordKey: "redis-password"
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+  exporter:
+    resources:
+      requests:
+        cpu: "10m"
+        memory: "64Mi"
+      limits:
+        memory: "64Mi"

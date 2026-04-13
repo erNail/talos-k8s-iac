@@ -1,0 +1,95 @@
+controller:
+  resources:
+    requests:
+      cpu: "10m"
+      memory: "256Mi"
+    limits:
+      memory: "256Mi"
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: "app.kubernetes.io/name"
+                  operator: "In"
+                  values:
+                    - "metallb"
+                - key: "app.kubernetes.io/component"
+                  operator: "In"
+                  values:
+                    - "controller"
+            topologyKey: "kubernetes.io/hostname"
+
+speaker:
+  resources:
+    requests:
+      cpu: "20m"
+      memory: "128Mi"
+    limits:
+      memory: "128Mi"
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: "app.kubernetes.io/name"
+                  operator: "In"
+                  values:
+                    - "metallb"
+                - key: "app.kubernetes.io/component"
+                  operator: "In"
+                  values:
+                    - "speaker"
+            topologyKey: "kubernetes.io/hostname"
+  frr:
+    resources:
+      requests:
+        cpu: "10m"
+        memory: "64Mi"
+      limits:
+        memory: "64Mi"
+  reloader:
+    resources:
+      requests:
+        cpu: "10m"
+        memory: "32Mi"
+      limits:
+        memory: "32Mi"
+  frrMetrics:
+    resources:
+      requests:
+        cpu: "10m"
+        memory: "32Mi"
+      limits:
+        memory: "32Mi"
+  initContainers:
+    cpFrrFiles:
+      resources:
+        requests:
+          cpu: "10m"
+          memory: "32Mi"
+        limits:
+          memory: "32Mi"
+    cpReloader:
+      resources:
+        requests:
+          cpu: "10m"
+          memory: "32Mi"
+        limits:
+          memory: "32Mi"
+    cpMetrics:
+      resources:
+        requests:
+          cpu: "10m"
+          memory: "32Mi"
+        limits:
+          memory: "32Mi"
+
+prometheus:
+  serviceMonitor:
+    enabled: true
+  rbacPrometheus: false

@@ -1,0 +1,18 @@
+apiVersion: "garage.rajsingh.info/v1alpha1"
+kind: "GarageKey"
+metadata:
+  name: "loki-garage-key"
+spec:
+  clusterRef:
+    name: "garage"
+    namespace: "garage-operator"
+  bucketPermissions:
+    - bucketRef: "loki-chunks"
+      read: true
+      write: true
+    - bucketRef: "loki-ruler"
+      read: true
+      write: true
+    - bucketRef: "loki-admin"
+      read: true
+      write: true

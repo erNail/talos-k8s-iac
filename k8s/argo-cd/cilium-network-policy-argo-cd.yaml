@@ -1,0 +1,300 @@
+---
+apiVersion: "cilium.io/v2"
+kind: "CiliumNetworkPolicy"
+metadata:
+  name: "argocd-repo-server"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: "argocd"
+      app.kubernetes.io/name: "argocd-repo-server"
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-prometheus-stack"
+            app.kubernetes.io/name: "prometheus"
+      toPorts:
+        - ports:
+            - port: "8084"
+              protocol: "TCP"
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "argocd"
+            app.kubernetes.io/name: "argocd-application-controller"
+      toPorts:
+        - ports:
+            - port: "8081"
+              protocol: "TCP"
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "argocd"
+            app.kubernetes.io/name: "argocd-server"
+      toPorts:
+        - ports:
+            - port: "8081"
+              protocol: "TCP"
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-system"
+            k8s:k8s-app: "kube-dns"
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: "ANY"
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "argocd"
+            app.kubernetes.io/name: "valkey"
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: "TCP"
+    - toEntities:
+        - "world"
+---
+apiVersion: "cilium.io/v2"
+kind: "CiliumNetworkPolicy"
+metadata:
+  name: "argocd-application-controller"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: "argocd"
+      app.kubernetes.io/name: "argocd-application-controller"
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-prometheus-stack"
+            app.kubernetes.io/name: "prometheus"
+      toPorts:
+        - ports:
+            - port: "8082"
+              protocol: "TCP"
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "argocd"
+            app.kubernetes.io/name: "valkey"
+      toPorts:
+        - ports:
+            - port: "8082"
+              protocol: "TCP"
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-system"
+            k8s:k8s-app: "kube-dns"
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: "ANY"
+    - toEntities:
+        - "kube-apiserver"
+        - "host"
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "argocd"
+            app.kubernetes.io/name: "argocd-repo-server"
+      toPorts:
+        - ports:
+            - port: "8081"
+              protocol: "TCP"
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "argocd"
+            app.kubernetes.io/name: "valkey"
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: "TCP"
+---
+apiVersion: "cilium.io/v2"
+kind: "CiliumNetworkPolicy"
+metadata:
+  name: "argocd-server"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: "argocd"
+      app.kubernetes.io/name: "argocd-server"
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-prometheus-stack"
+            app.kubernetes.io/name: "prometheus"
+      toPorts:
+        - ports:
+            - port: "8083"
+              protocol: "TCP"
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "ingress"
+            app.kubernetes.io/name: "ingress-nginx"
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: "TCP"
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-system"
+            k8s:k8s-app: "kube-dns"
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: "ANY"
+    - toEntities:
+        - "kube-apiserver"
+        - "host"
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "argocd"
+            app.kubernetes.io/name: "valkey"
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: "TCP"
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "argocd"
+            app.kubernetes.io/name: "argocd-repo-server"
+      toPorts:
+        - ports:
+            - port: "8081"
+              protocol: "TCP"
+---
+apiVersion: "cilium.io/v2"
+kind: "CiliumNetworkPolicy"
+metadata:
+  name: "argocd-applicationset-controller"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: "argocd"
+      app.kubernetes.io/name: "argocd-applicationset-controller"
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-prometheus-stack"
+            app.kubernetes.io/name: "prometheus"
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: "TCP"
+  egress: []
+---
+apiVersion: "cilium.io/v2"
+kind: "CiliumNetworkPolicy"
+metadata:
+  name: "argocd-notifications-controller"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: "argocd"
+      app.kubernetes.io/name: "argocd-notifications-controller"
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-prometheus-stack"
+            app.kubernetes.io/name: "prometheus"
+      toPorts:
+        - ports:
+            - port: "9001"
+              protocol: "TCP"
+  egress: []
+---
+apiVersion: "cilium.io/v2"
+kind: "CiliumNetworkPolicy"
+metadata:
+  name: "argocd-dex-server"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: "argocd"
+      app.kubernetes.io/name: "argocd-dex-server"
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-prometheus-stack"
+            app.kubernetes.io/name: "prometheus"
+      toPorts:
+        - ports:
+            - port: "5558"
+              protocol: "TCP"
+  egress: []
+---
+apiVersion: "cilium.io/v2"
+kind: "CiliumNetworkPolicy"
+metadata:
+  name: "valkey"
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: "argocd"
+      app.kubernetes.io/name: "valkey"
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-prometheus-stack"
+            app.kubernetes.io/name: "prometheus"
+      toPorts:
+        - ports:
+            - port: "9121"
+              protocol: "TCP"
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "argocd"
+            app.kubernetes.io/name: "argocd-server"
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: "TCP"
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "argocd"
+            app.kubernetes.io/name: "argocd-repo-server"
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: "TCP"
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "argocd"
+            app.kubernetes.io/name: "argocd-application-controller"
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: "TCP"
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "argocd"
+            app.kubernetes.io/name: "valkey"
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: "TCP"
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "kube-system"
+            k8s:k8s-app: "kube-dns"
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: "ANY"
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "argocd"
+            app.kubernetes.io/name: "valkey"
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: "TCP"
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: "argocd"
+            app.kubernetes.io/name: "argocd-application-controller"
+      toPorts:
+        - ports:
+            - port: "38680"
+              protocol: "TCP"

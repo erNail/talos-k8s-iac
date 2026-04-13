@@ -1,0 +1,81 @@
+---
+crds:
+  migration:
+    podResources:
+      limits:
+        memory: "128Mi"
+      requests:
+        cpu: "10m"
+        memory: "128Mi"
+
+admissionController:
+  replicas: 2
+  initContainer:
+    resources:
+      limits:
+        memory: "128Mi"
+      requests:
+        cpu: "10m"
+        memory: "128Mi"
+  container:
+    resources:
+      limits:
+        memory: "128Mi"
+      requests:
+        cpu: "10m"
+        memory: "128Mi"
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  serviceMonitor:
+    enabled: true
+  podLabels:
+    app.kubernetes.io/name: "kyverno-admission-controller"
+
+backgroundController:
+  replicas: 2
+  resources:
+    limits:
+      memory: "128Mi"
+    requests:
+      cpu: "10m"
+      memory: "128Mi"
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  serviceMonitor:
+    enabled: true
+  podLabels:
+    app.kubernetes.io/name: "kyverno-background-controller"
+
+cleanupController:
+  replicas: 2
+  resources:
+    limits:
+      memory: "128Mi"
+    requests:
+      cpu: "10m"
+      memory: "128Mi"
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  serviceMonitor:
+    enabled: true
+  podLabels:
+    app.kubernetes.io/name: "kyverno-cleanup-controller"
+
+reportsController:
+  replicas: 2
+  resources:
+    limits:
+      memory: "256Mi"
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  serviceMonitor:
+    enabled: true
+  podLabels:
+    app.kubernetes.io/name: "kyverno-reports-controller"

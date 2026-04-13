@@ -1,0 +1,37 @@
+---
+apiVersion: "policies.kyverno.io/v1alpha1"
+kind: "ValidatingPolicy"
+metadata:
+  name: "service-monitor-exists-audit"
+spec:
+  validationActions:
+    - "Audit"
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - "v1"
+        operations:
+          - "CREATE"
+          - "UPDATE"
+        resources:
+          - "services"
+  variables:
+    - name: "serviceMonitorList"
+      expression: >-
+        resource.List('monitoring.coreos.com/v1', 'servicemonitors', object.metadata.namespace).items.orValue([])
+    - name: "serviceLabels"
+      expression: >-
+        object.metadata.?labels.orValue({})
+  validations:
+    - messageExpression: >-
+        "No ServiceMonitor found targeting Service/" + object.metadata.name +
+        " in namespace " + object.metadata.namespace + "."
+      expression: >-
+        variables.serviceMonitorList.exists(sm,
+          sm.spec.?selector.?matchLabels.orValue({}).all(key,
+            key in variables.serviceLabels &&
+            sm.spec.selector.matchLabels[key] == variables.serviceLabels[key]
+          )
+        )

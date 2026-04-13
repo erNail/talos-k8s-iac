@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: "garage"
+  namespace: "garage-operator"
+  annotations:
+    cert-manager.io/cluster-issuer: "dns01-cloudflare-cluster-issuer-prod"
+spec:
+  ingressClassName: "nginx"
+  tls:
+    - hosts:
+        - "*.garage.nailforge.dev"
+      secretName: "garage-wildcard-tls"
+  rules:
+    - host: "*.garage.nailforge.dev"
+      http:
+        paths:
+          - path: "/"
+            pathType: "Prefix"
+            backend:
+              service:
+                name: "garage"
+                port:
+                  number: 3902
